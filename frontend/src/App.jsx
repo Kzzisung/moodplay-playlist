@@ -7,6 +7,7 @@ import { useHistory } from "./hooks/useHistory";
 import "./App.css";
 
 export default function App() {
+  const API_BASE = import.meta.env.VITE_API_URL || "";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [analysis, setAnalysis] = useState(null);
@@ -21,11 +22,11 @@ export default function App() {
 
     try {
       // Step 1: Analyze emotion
-      const { data: analysisData } = await axios.post("/api/analyze", { text: moodText });
+      const { data: analysisData } = await axios.post(`${API_BASE}/api/analyze`, { text: moodText });
       setAnalysis(analysisData);
 
       // Step 2: Search Spotify
-      const { data: spotifyData } = await axios.post("/api/spotify/search", {
+      const { data: spotifyData } = await axios.post(`${API_BASE}/api/spotify/search`, {
         keywords: analysisData.searchKeywords,
         genres: analysisData.genres,
         mood: analysisData.mood,
