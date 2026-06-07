@@ -1,0 +1,32 @@
+services:
+  # Backend API
+  - type: web
+    name: moodplay-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SPOTIFY_CLIENT_ID
+        sync: false
+      - key: SPOTIFY_CLIENT_SECRET
+        sync: false
+      - key: PORT
+        value: 3000
+
+  # Frontend (static site)
+  - type: web
+    name: moodplay-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://moodplay-backend.onrender.com/api/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
