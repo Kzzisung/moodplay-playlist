@@ -5,10 +5,16 @@ const router = express.Router();
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 router.post("/", async (req, res) => {
-  const { text } = req.body;
+  const { text, mode } = req.body; // mode: 'keep' | 'change' | null
   if (!text || !text.trim()) {
     return res.status(400).json({ error: "감정 텍스트를 입력해주세요." });
   }
+
+  const modeInstruction = mode === "keep"
+    ? "사용자는 지금 이 감정을 그대로 유지하고 싶어해. 현재 감정에 공감하고 함께하는 음악을 추천해줘. 같은 감정대의 음악으로 searchKeywords를 구성해."
+    : mode === "change"
+    ? "사용자는 지금 기분을 전환하고 싶어해. 현재 감정과 반대되는 밝고 긍정적인 음악을 추천해줘. energy를 high로 올리고 searchKeywords를 밝고 신나는 방향으로 구성해."
+    : "";
 
   try {
     const message = await client.messages.create({
@@ -19,6 +25,7 @@ router.post("/", async (req, res) => {
           role: "user",
           content: `다음 감정 텍스트를 분석하여 음악 추천에 적합한 키워드를 추출해줘.
 반드시 아래 JSON 형식만 반환하고, 다른 텍스트는 절대 포함하지 마.
+${modeInstruction}
 
 감정 텍스트: "${text}"
 
